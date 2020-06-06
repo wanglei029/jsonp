@@ -1,11 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JSONP跨域请求</title>
 </head>
+
 <body>
-    
+    <!-- 客户端网页 -->
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.js"></script>
+    <!-- 既然浏览器不允许ajax发跨域请求 就不用ajax -->
+    <script>
+        // $.ajax({
+        //     url:'http://127.0.0.1:3000/',
+        //     type:'get',
+        //     dataType: "jsonp",
+        //     success:function(weather){
+        //         document.write(weather)
+        //     }
+        // })
+    </script>
+    <!-- 方案一 -->
+    <!-- <script src="http://127.0.0.1:3000/"></script> -->
+    <!-- 方案二：提前定义一个处理函数，可接收服务端的数据，并执行在客户端本地自定义的操作 -->
+    <script>
+        function show1(weather) {
+            // alert(weather)
+            console.log(weather);
+        }
+
+        function qq(data) {
+            console.log(data);
+        }
+    </script>
+    <!-- <script src="http://127.0.0.1:3000/"></script> -->
+    <!-- 方案三 -->
+    <!-- <script src="http://127.0.0.1:3000/?callback=show1"></script> -->
+    <script
+        src="https://c.y.qq.com/musichall/fcgi-bin/fcg_yqqhomepagerecommend.fcg?g_tk=1928093487&inCharset=utf-8&outCharset=utf-8&notice=0&format=jsonp&platform=h5&uin=0&needNewCode=1&jsonpCallback=qq">
+    </script>
+    <!-- 上述的方案中 发送请求的script 是写死的 只能在页面加载时，请求一次，无法按需加载 -->
+    <!-- 方案四 在事件处理函数中，动态的创建 script -->
+    <!-- 问题 <script>会堆积  在自定义的回调函数doit中删除用过的script-->
+    <button id="btn">天气预报</button>
+    <script>
+        function doit(weather) {
+            let body=document.body
+            // 回调函数的结尾删除用过的script
+            // 删除用过的script 方法一：
+            // body.removeChild(body.lastElementChild)
+            // 删除用过的script 方法二：
+            let myScript=document.getElementsByTagName('script')
+            // 获取最后一个 script
+            let length=myScript.length-1
+            let lastScript=myScript[length]
+            body.removeChild(lastScript)
+            console.log(weather);
+            // alert(weather)
+        }
+        // console.log($('button'));
+        const btn = document.getElementById("btn")
+        btn.onclick = function (e) {
+            // console.log(e);
+            console.log('btn点击', this);
+            const script = document.createElement('script')
+            script.src = 'http://127.0.0.1:3000/?callback=doit'
+            // 为script设置自定义属性myName
+            script.myName="myScript"
+            document.body.appendChild(script)
+        }
+    </script>
 </body>
+
 </html>
